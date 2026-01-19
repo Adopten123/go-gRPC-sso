@@ -1,7 +1,13 @@
-package sso
+package main
+
+import (
+	"fmt"
+	"go-gRPC-sso/internal/config"
+)
 
 func main() {
-	// TODO: init config
+	config := config.MustLoad()
+	fmt.Println(config)
 
 	// TODO: init logger - slog
 
