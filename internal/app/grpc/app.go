@@ -1,4 +1,4 @@
-package grpc
+package grpcapp
 
 import (
 	authgrpc "go-gRPC-sso/internal/grpc/auth"
