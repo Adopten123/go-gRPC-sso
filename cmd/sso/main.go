@@ -1,6 +1,7 @@
 package main
 
 import (
+	"go-gRPC-sso/internal/app"
 	"go-gRPC-sso/internal/config"
 	"go-gRPC-sso/internal/lib/logger/handlers/slogpretty"
 	"log/slog"
@@ -18,6 +19,9 @@ func main() {
 
 	logger := setupLogger(config.Env)
 	logger.Info("starting server", slog.Any("config", config))
+
+	application := app.New(logger, config.GRPC.Port, config.StoragePath, config.TokenTTL)
+	application.GRPCServer.MustRun()
 	// TODO: inti app
 
 	// TODO: run gRPC-server app
