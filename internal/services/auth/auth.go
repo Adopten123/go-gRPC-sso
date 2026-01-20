@@ -32,7 +32,7 @@ type UserSaver interface {
 
 type UserProvider interface {
 	User(context context.Context, email string) (models.User, error)
-	IsAdmin(context context.Context, email string) (bool, error)
+	IsAdmin(context context.Context, userID int64) (bool, error)
 }
 
 type AppProvider interface {
@@ -118,5 +118,19 @@ func (a *Auth) RegisterNewUser(context context.Context, email, password string) 
 }
 
 func (a *Auth) IsAdmin(context context.Context, userID int64) (bool, error) {
-	panic("implement me")
+	const op = "auth.IsAdmin"
+
+	logger := a.logger.With(
+		slog.String("op", op),
+		slog.Int64("user_id", userID),
+	)
+	logger.Info("checking if user is admin")
+
+	isAdmin, err := a.userProvider.IsAdmin(context, userID)
+	if err != nil {
+		return false, fmt.Errorf("%s: %w", op, err)
+	}
+	logger.Info("checked if user is admin", slog.Bool("is_admin", isAdmin))
+
+	return isAdmin, nil
 }
