@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"go-gRPC-sso/internal/domain/models"
+	"go-gRPC-sso/internal/lib/jwt"
 	"go-gRPC-sso/internal/lib/logger/sl"
 	"go-gRPC-sso/internal/storage"
 	"log/slog"
@@ -82,8 +83,14 @@ func (a *Auth) Login(context context.Context, email string, password string, app
 	if err != nil {
 		return "", fmt.Errorf("%s: %w", op, err)
 	}
-
 	logger.Info("successfully logged in")
+
+	token, err := jwt.NewToken(user, app, a.tokenTTL)
+	if err != nil {
+		a.logger.Error("failed to generate token", sl.Err(err))
+		return "", fmt.Errorf("%s: %w", op, err)
+	}
+	return token, nil
 }
 
 func (a *Auth) RegisterNewUser(context context.Context, email, password string) (int64, error) {
