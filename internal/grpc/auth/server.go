@@ -11,6 +11,7 @@ import (
 
 const (
 	emptyAppID  = 0
+	emptyUserID = 0
 	emptyString = ""
 )
 
@@ -61,7 +62,18 @@ func (s *serverAPI) Register(context context.Context, request *ssov1.RegisterReq
 }
 
 func (s *serverAPI) IsAdmin(context context.Context, request *ssov1.IsAdminRequest) (*ssov1.IsAdminResponse, error) {
-	panic("implement me")
+	if err := validateIsAdmin(request); err != nil {
+		return nil, err
+	}
+
+	isAdmin, err := s.authServer.IsAdmin(context, request.GetUserId())
+	if err != nil {
+		return nil, status.Error(codes.Internal, "internal server error")
+	}
+
+	return &ssov1.IsAdminResponse{
+		IsAdmin: isAdmin,
+	}, nil
 }
 
 func validateLogin(request *ssov1.LoginRequest) error {
@@ -83,6 +95,13 @@ func validateRegister(request *ssov1.RegisterRequest) error {
 	}
 	if request.GetPassword() == emptyString {
 		return status.Error(codes.InvalidArgument, "password is required")
+	}
+	return nil
+}
+
+func validateIsAdmin(request *ssov1.IsAdminRequest) error {
+	if request.GetUserId() == emptyUserID {
+		return status.Error(codes.InvalidArgument, "userId is required")
 	}
 	return nil
 }
