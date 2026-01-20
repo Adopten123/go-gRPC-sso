@@ -16,6 +16,8 @@ import (
 
 var (
 	ErrorInvalidCredentials = errors.New("invalid credentials")
+	ErrorInvalidAppID       = errors.New("invalid app id")
+	ErrorUserExists         = errors.New("user already exists")
 )
 
 type Auth struct {
@@ -110,6 +112,10 @@ func (a *Auth) RegisterNewUser(context context.Context, email, password string) 
 
 	id, err := a.userSaver.SaveUser(context, email, passHash)
 	if err != nil {
+		if errors.Is(err, storage.ErrorUserExists) {
+			logger.Warn("user already exists", sl.Err(err))
+			return 0, fmt.Errorf("%s: %w", op, ErrorUserExists)
+		}
 		logger.Error("failed to save user", sl.Err(err))
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
@@ -128,6 +134,10 @@ func (a *Auth) IsAdmin(context context.Context, userID int64) (bool, error) {
 
 	isAdmin, err := a.userProvider.IsAdmin(context, userID)
 	if err != nil {
+		if errors.Is(err, storage.ErrorAppNotFound) {
+			logger.Warn("user not found", sl.Err(err))
+			return false, fmt.Errorf("%s: %w", op, ErrorInvalidAppID)
+		}
 		return false, fmt.Errorf("%s: %w", op, err)
 	}
 	logger.Info("checked if user is admin", slog.Bool("is_admin", isAdmin))
