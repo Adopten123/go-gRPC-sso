@@ -2,13 +2,19 @@ package auth
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"go-gRPC-sso/internal/domain/models"
 	"go-gRPC-sso/internal/lib/logger/sl"
+	"go-gRPC-sso/internal/storage"
 	"log/slog"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
+)
+
+var (
+	ErrorInvalidCredentials = errors.New("invalid credentials")
 )
 
 type Auth struct {
@@ -49,7 +55,35 @@ func New(
 }
 
 func (a *Auth) Login(context context.Context, email string, password string, appID int) (string, error) {
-	panic("implement me")
+	const op = "auth.Login"
+
+	logger := a.logger.With(
+		slog.String("op", op),
+		slog.String("email", email),
+	)
+	logger.Info("attempting to login user")
+
+	user, err := a.userProvider.User(context, email)
+	if err != nil {
+		if errors.Is(err, storage.ErrorUserExists) {
+			a.logger.Warn("user not found")
+			return "", fmt.Errorf("%s: %w", op, ErrorInvalidCredentials)
+		}
+		a.logger.Error("failed to get user", sl.Err(err))
+		return "", fmt.Errorf("%s: %w", op, err)
+	}
+
+	if err := bcrypt.CompareHashAndPassword(user.PassHash, []byte(password)); err != nil {
+		a.logger.Info("invalid credentials", sl.Err(err))
+		return "", fmt.Errorf("%s: %w", op, ErrorInvalidCredentials)
+	}
+
+	app, err := a.appProvider.App(context, appID)
+	if err != nil {
+		return "", fmt.Errorf("%s: %w", op, err)
+	}
+
+	logger.Info("successfully logged in")
 }
 
 func (a *Auth) RegisterNewUser(context context.Context, email, password string) (int64, error) {
