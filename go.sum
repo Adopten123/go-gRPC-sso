@@ -1,5 +1,11 @@
 github.com/Adopten123/go-protobufcontract-sso v0.1.1 h1:aX4yrf1aOEhph9V0n9Geiuc+L8/22az+ArGOSaNb0rU=
 github.com/Adopten123/go-protobufcontract-sso v0.1.1/go.mod h1:NGADWY/m68W6TA1rWbii23As+2r8o0me3JR85877dBw=
+github.com/Adopten123/go-protobufcontract-sso v0.1.2 h1:6RrHPj6zL5ucdFIOLmsesXbWAIljKKWAITsZLqKtKkI=
+github.com/Adopten123/go-protobufcontract-sso v0.1.2/go.mod h1:NGADWY/m68W6TA1rWbii23As+2r8o0me3JR85877dBw=
+github.com/Adopten123/go-protobufcontract-sso v0.1.3 h1:KCRHfm0X+UAdmNUx8La+UQYkMuDKoYrg9eK1y1z7lP8=
+github.com/Adopten123/go-protobufcontract-sso v0.1.3/go.mod h1:NGADWY/m68W6TA1rWbii23As+2r8o0me3JR85877dBw=
+github.com/Adopten123/go-protobufcontract-sso v0.1.4 h1:MofumtqUE1J/UMu2sJ52D113bwMbgyjf9E2kWD3eiWg=
+github.com/Adopten123/go-protobufcontract-sso v0.1.4/go.mod h1:NGADWY/m68W6TA1rWbii23As+2r8o0me3JR85877dBw=
 github.com/BurntSushi/toml v1.2.1 h1:9F2/+DoOYIOksmaJFPw1tGFy1eDnIJXg+UHjuD8lTak=
 github.com/BurntSushi/toml v1.2.1/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/fatih/color v1.18.0 h1:S8gINlzdQ840/4pfAwic/ZE0djQEH3wM94VfqLTZcOM=

@@ -5,7 +5,7 @@ go 1.24.0
 toolchain go1.24.2
 
 require (
-	github.com/Adopten123/go-protobufcontract-sso v0.1.1
+	github.com/Adopten123/go-protobufcontract-sso v0.1.4
 	github.com/fatih/color v1.18.0
 	github.com/ilyakaznacheev/cleanenv v1.5.0
 )

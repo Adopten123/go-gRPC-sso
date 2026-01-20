@@ -6,6 +6,8 @@ import (
 	"go-gRPC-sso/internal/lib/logger/handlers/slogpretty"
 	"log/slog"
 	"os"
+	"os/signal"
+	"syscall"
 )
 
 const (
@@ -21,10 +23,19 @@ func main() {
 	logger.Info("starting server", slog.Any("config", config))
 
 	application := app.New(logger, config.GRPC.Port, config.StoragePath, config.TokenTTL)
-	application.GRPCServer.MustRun()
+
+	go application.GRPCServer.MustRun()
 	// TODO: inti app
 
 	// TODO: run gRPC-server app
+
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
+	sign := <-stop
+	logger.Info("stopping application", slog.String("signal", sign.String()))
+
+	application.GRPCServer.Stop()
+	logger.Info("sever stopped")
 }
 
 func setupLogger(env string) *slog.Logger {
