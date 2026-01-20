@@ -2,9 +2,13 @@ package auth
 
 import (
 	"context"
+	"fmt"
 	"go-gRPC-sso/internal/domain/models"
+	"go-gRPC-sso/internal/lib/logger/sl"
 	"log/slog"
 	"time"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type Auth struct {
@@ -49,7 +53,27 @@ func (a *Auth) Login(context context.Context, email string, password string, app
 }
 
 func (a *Auth) RegisterNewUser(context context.Context, email, password string) (int64, error) {
-	panic("implement me")
+	const op = "auth.RegisterNewUser"
+
+	logger := a.logger.With(
+		slog.String("op", op),
+		slog.String("email", email),
+	)
+	logger.Info("register new user")
+
+	passHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		logger.Error("failed to generate password hash", sl.Err(err))
+		return 0, fmt.Errorf("%s: %w", op, err)
+	}
+
+	id, err := a.userSaver.SaveUser(context, email, passHash)
+	if err != nil {
+		logger.Error("failed to save user", sl.Err(err))
+		return 0, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return id, nil
 }
 
 func (a *Auth) IsAdmin(context context.Context, userID int64) (bool, error) {
