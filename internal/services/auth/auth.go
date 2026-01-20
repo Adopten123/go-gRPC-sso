@@ -43,3 +43,15 @@ func New(
 		tokenTTL:     tokenTTL,
 	}
 }
+
+func (a *Auth) Login(context context.Context, email string, password string, appID int) (string, error) {
+	panic("implement me")
+}
+
+func (a *Auth) RegisterNewUser(context context.Context, email, password string) (int64, error) {
+	panic("implement me")
+}
+
+func (a *Auth) IsAdmin(context context.Context, userID int64) (bool, error) {
+	panic("implement me")
+}
