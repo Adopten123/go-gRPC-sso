@@ -47,7 +47,17 @@ func (s *serverAPI) Login(context context.Context, request *ssov1.LoginRequest) 
 }
 
 func (s *serverAPI) Register(context context.Context, request *ssov1.RegisterRequest) (*ssov1.RegisterResponse, error) {
-	panic("implement me")
+	if err := validateRegister(request); err != nil {
+		return nil, err
+	}
+
+	userID, err := s.authServer.RegisterNewUser(context, request.GetEmail(), request.GetPassword())
+	if err != nil {
+		return nil, status.Error(codes.Internal, "internal server error")
+	}
+	return &ssov1.RegisterResponse{
+		UserId: userID,
+	}, nil
 }
 
 func (s *serverAPI) IsAdmin(context context.Context, request *ssov1.IsAdminRequest) (*ssov1.IsAdminResponse, error) {
@@ -63,6 +73,16 @@ func validateLogin(request *ssov1.LoginRequest) error {
 	}
 	if request.GetAppId() == emptyAppID {
 		return status.Error(codes.InvalidArgument, "appId is required")
+	}
+	return nil
+}
+
+func validateRegister(request *ssov1.RegisterRequest) error {
+	if request.GetEmail() == emptyString {
+		return status.Error(codes.InvalidArgument, "email is required")
+	}
+	if request.GetPassword() == emptyString {
+		return status.Error(codes.InvalidArgument, "password is required")
 	}
 	return nil
 }
