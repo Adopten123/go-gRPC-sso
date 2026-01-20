@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"go-gRPC-sso/internal/domain/models"
 	"go-gRPC-sso/internal/storage"
 
 	"github.com/mattn/go-sqlite3"
@@ -47,4 +48,25 @@ func (s *Storage) SaveUser(context context.Context, email string, passHash []byt
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
 	return id, nil
+}
+
+func (s *Storage) User(context context.Context, email string) (models.User, error) {
+	const op = "storage.sqlite.User"
+
+	stmt, err := s.db.Prepare("SELECT id, email, password_hash FROM users WHERE email = ?")
+	if err != nil {
+		return models.User{}, fmt.Errorf("%s: %w", op, err)
+	}
+
+	row := stmt.QueryRowContext(context, email)
+
+	var result models.User
+	err = row.Scan(&result.ID, &result.Email, &result.PassHash)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return models.User{}, fmt.Errorf("%s: %w", op, storage.ErrorUserNotFound)
+		}
+		return models.User{}, fmt.Errorf("%s: %w", op, err)
+	}
+	return result, nil
 }
