@@ -2,6 +2,8 @@ package auth
 
 import (
 	"context"
+	"errors"
+	"go-gRPC-sso/internal/services/auth"
 
 	ssov1 "github.com/Adopten123/go-protobufcontract-sso/gen/go/sso"
 	"google.golang.org/grpc"
@@ -39,6 +41,9 @@ func (s *serverAPI) Login(context context.Context, request *ssov1.LoginRequest) 
 
 	token, err := s.authServer.Login(context, request.GetEmail(), request.GetPassword(), int(request.GetAppId()))
 	if err != nil {
+		if errors.Is(err, auth.ErrorInvalidCredentials) {
+			return nil, status.Error(codes.InvalidArgument, "invalid credentials")
+		}
 		return nil, status.Error(codes.Internal, "internal server error")
 	}
 
@@ -54,6 +59,9 @@ func (s *serverAPI) Register(context context.Context, request *ssov1.RegisterReq
 
 	userID, err := s.authServer.RegisterNewUser(context, request.GetEmail(), request.GetPassword())
 	if err != nil {
+		if errors.Is(err, auth.ErrorUserExists) {
+			return nil, status.Error(codes.AlreadyExists, "user already exists")
+		}
 		return nil, status.Error(codes.Internal, "internal server error")
 	}
 	return &ssov1.RegisterResponse{
@@ -68,6 +76,9 @@ func (s *serverAPI) IsAdmin(context context.Context, request *ssov1.IsAdminReque
 
 	isAdmin, err := s.authServer.IsAdmin(context, request.GetUserId())
 	if err != nil {
+		if errors.Is(err, auth.ErrorUserExists) {
+			return nil, status.Error(codes.NotFound, "user not found")
+		}
 		return nil, status.Error(codes.Internal, "internal server error")
 	}
 
